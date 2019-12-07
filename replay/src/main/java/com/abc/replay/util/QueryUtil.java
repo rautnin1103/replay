@@ -8,8 +8,9 @@ public class QueryUtil {
 
 
     public static String creatSingleFileSearchQuery(String fileName, String tableName){
-        String query=null;
 
+        String query=null;
+        query = "select ID,message from "+ tableName+ " where ID='"+fileName+"'";
         return query;
     }
 

@@ -25,7 +25,7 @@ public class ReplayMessageExtractor {
         if(config.getProperty("TABLE_NAME")!=null) {
             TABLE_NAME = config.getProperty("TABLE_NAME");
         } else {
-            TABLE_NAME = "SAMPLE_TABLE";
+            TABLE_NAME = "SYSTEM.eventtracker";
         }
     }
 

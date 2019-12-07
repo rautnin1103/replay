@@ -1,4 +1,4 @@
-package com.abc.replay;
+package com.abc.replay.poc;
 import java.sql.*;
 
 public class PhoenixExample {
