@@ -1,10 +1,10 @@
-package com.abc.replay;
+package com.abc.replay.poc;
 
 import java.sql.*;
 
-public class InsertDataToEvenTracker {
-
+public class CreateReplaySchema {
     public static void main(String[] args) {
+        // Create variables
         Connection connection = null;
         Statement statement = null;
         ResultSet rs = null;
@@ -17,31 +17,30 @@ public class InsertDataToEvenTracker {
             // Create a JDBC statement
             statement = connection.createStatement();
 
-            statement.executeUpdate("upsert into SYSTEM.eventtracker values " +
-                    "('/reach/abc/xyz/somefile.zip'," +
-                    "'2019-12-01 00:00:59'," +
-                    "'{sample json message}'," +
-                    "'1'," +
-                    "'2019-12-01 00:00:59'," +
-                    "'1'," +
-                    "'2019-12-01 00:00:59'," +
-                    "'1'," +
-                    "'2019-12-01 00:00:59'," +
-                    "''," +
-                    "''," +
-                    "'')");
-            //statement.executeUpdate("upsert into javatest values (2,'Java Application')");
+            //statement.executeUpdate("delete from SYSTEM.CATALOG where TABLE_NAME='SYSTEM.eventtracker'");
+
+            //statement.executeUpdate("DROP TABLE 'SYSTEM.eventtracker'");
+
+            //connection.commit();
+
+            // Execute our statements
+            statement.executeUpdate("CREATE TABLE SYSTEM.eventtracker_1  (\n" +
+                    "       ID VARCHAR,\n" +
+                    "       Created_DATE DATE NOT NULL,\n" +
+                    "       preprocess VARCHAR ,\n" +
+                    "       preprocess_DATE DATE ,\n" +
+                    "       iReach VARCHAR ,\n" +
+                    "       iReach_DATE DATE ,\n" +
+                    "       indexing VARCHAR,\n" +
+                    "       indexing_DATE DATE ,\n" +
+                    "       persistence VARCHAR,\n" +
+                    "       persistence_DATE DATE ,\n" +
+                    "       replay VARCHAR ,\n" +
+                    "       CONSTRAINT pk PRIMARY KEY (ID , Created_DATE ROW_TIMESTAMP)\n" +
+                    ")\n");
             connection.commit();
 
-            // Query for table
-            ps = connection.prepareStatement("select ID,message from SYSTEM.eventtracker where ID='/reach/abc/xyz/somefile.zip'");
-            rs = ps.executeQuery();
-            System.out.println("Table Values");
-            while(rs.next()) {
-                String myKey = rs.getString(1);
-                String myColumn = rs.getString(2);
-                System.out.println("\tRow: " + myKey + " = " + myColumn);
-            }
+
         }
         catch(SQLException e) {
             e.printStackTrace();

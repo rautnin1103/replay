@@ -20,8 +20,6 @@ public class ReplayReachProducer {
 		// specify the protocol for SSL Encryption
 		props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT");
 		props.put("sasl.kerberos.service.name","kafka");
-
-
 		props.put(ProducerConfig.ACKS_CONFIG, "all");
 		props.put(ProducerConfig.RETRIES_CONFIG, 0);
 		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
@@ -74,8 +72,6 @@ public class ReplayReachProducer {
 
 		Producer<String, String> producer = new KafkaProducer(props);
 		TestCallback callback = new TestCallback();
-		Random rnd = new Random();
-
 
 		ProducerRecord<String, String> data = new ProducerRecord<String, String>(
 				topic, key,message );
