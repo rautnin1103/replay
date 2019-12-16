@@ -2,12 +2,17 @@ package com.abc.replay.dao;
 
 import com.abc.replay.util.QueryUtil;
 import org.apache.commons.math3.util.Pair;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.UserGroupInformation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.security.PrivilegedAction;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 public class ReplayDao {
@@ -66,7 +71,8 @@ public class ReplayDao {
         try{
             String resultKey = null;
             String resultMessage=null;
-            connection = DriverManager.getConnection(dbUrl);
+            //connection = DriverManager.getConnection(dbUrl);
+            connection = getDbConnection();
             String query = QueryUtil.creatSingleFileSearchQuery(fileName, tableName);
             if(printQuery) {
                 logger.info("Query::"+query);
@@ -107,7 +113,8 @@ public class ReplayDao {
         ResultSet rs = null;
         try{
             List<Pair<String,String>> result = new ArrayList<>();
-            connection = DriverManager.getConnection(dbUrl);
+            //connection = DriverManager.getConnection(dbUrl);
+            connection = getDbConnection();
             String query = QueryUtil.createDateRangeSearchQuery(fromDate, toDate, tableName);
             if(printQuery) {
                 logger.info("Query::"+query);
@@ -142,5 +149,42 @@ public class ReplayDao {
                 catch(Exception e) {}
             }
         }
+    }
+
+    private Connection getDbConnection()
+    {
+        try
+        {
+            Class.forName(config.getProperty("jdbc.driver"));
+        }
+        catch (ClassNotFoundException e)
+        {
+            logger.error("HBase database driver not found", e);
+        }
+        try
+        {
+            Configuration conf = new Configuration();
+            conf.set("hadoop.security.authentication", "Kerberos");
+            UserGroupInformation.setConfiguration(conf);
+            UserGroupInformation ugi = UserGroupInformation
+                    .loginUserFromKeytabAndReturnUGI(config.getProperty("kerberos.principle"), config.getProperty("kerberos.keytab"));
+            return ugi.doAs((PrivilegedAction<Connection>) () -> {
+                try
+                {
+                    return DriverManager
+                            .getConnection(Objects.requireNonNull(dbUrl));
+                }
+                catch (SQLException e)
+                {
+                    e.printStackTrace();
+                }
+                return null;
+            });
+        }
+        catch (IOException e)
+        {
+            logger.error("failed to created db connection", e);
+        }
+        return null;
     }
 }
